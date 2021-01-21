@@ -538,7 +538,7 @@ paths:
               type: object
               properties:
                 file:
-                  type: file
+                  type: object
                   description: Upload File
                   format: binary
       responses:
