@@ -1,717 +1,1325 @@
-openapi: 3.0.3
-servers:
-  - url: '//petstore.swagger.io/v2'
+---
+openapi: 3.0.1
 info:
-  description: >-
-    This is a sample server Petstore server.  You can find out more about
-    Swagger at [http://swagger.io](http://swagger.io) or on [irc.freenode.net,
-    #swagger](http://swagger.io/irc/).  For this sample, you can use the api key
-    `special-key` to test the authorization filters.
-  version: 1.0.0
-  title: Swagger Petstore
-  termsOfService: 'http://swagger.io/terms/'
-  contact:
-    email: apiteam@swagger.io
-  license:
-    name: Apache 2.0
-    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
-tags:
-  - name: pet
-    description: Everything about your Pets
-    externalDocs:
-      description: Find out more
-      url: 'http://swagger.io'
-  - name: store
-    description: Access to Petstore orders
-  - name: user
-    description: Operations about user
-    externalDocs:
-      description: Find out more about our store
-      url: 'http://swagger.io'
+  title: Simply Secure Sign External API
+  description: Simply Secure Sign External API - API for external applications to
+    create packages and documents
+  version: '1.0'
+servers:
+- url: "/ext-api"
 paths:
-  /pet:
+  "/api/v1/Auth/login":
     post:
       tags:
-        - pet
-      summary: Add a new pet to the store
-      description: ''
-      operationId: addPet
+      - Auth
+      summary: Logins the user
+      requestBody:
+        description: Credentials of the user
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/Credentials"
+      responses:
+        '201':
+          description: Success
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/UserLogin"
+  "/api/v1/Documents/{id}":
+    get:
+      tags:
+      - Documents
+      summary: Retrieve information about a document
+      parameters:
+      - name: id
+        in: path
+        description: Document Identifier
+        required: true
+        schema:
+          type: integer
+          description: Document Identifier
+          format: int32
+          example: 868011
       responses:
         '200':
-          description: OK
-        '405':
-          description: Invalid input
-      security:
-        - petstore_auth:
-            - 'write:pets'
-            - 'read:pets'
-      requestBody:
-        $ref: '#/components/requestBodies/Pet'
+          description: Success
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Document"
     put:
       tags:
-        - pet
-      summary: Update an existing pet
-      description: ''
-      operationId: updatePet
-      responses:
-        '200':
-          description: OK
-        '400':
-          description: Invalid ID supplied
-        '404':
-          description: Pet not found
-        '405':
-          description: Validation exception
-      security:
-        - petstore_auth:
-            - 'write:pets'
-            - 'read:pets'
+      - Documents
+      summary: Update information of a document
+      parameters:
+      - name: id
+        in: path
+        description: The identifier of the document
+        required: true
+        schema:
+          type: integer
+          description: The identifier of the document
+          format: int32
       requestBody:
-        $ref: '#/components/requestBodies/Pet'
-  /pet/findByStatus:
-    get:
-      tags:
-        - pet
-      summary: Finds Pets by status
-      description: Multiple status values can be provided with comma separated strings
-      operationId: findPetsByStatus
-      parameters:
-        - name: status
-          in: query
-          description: Status values that need to be considered for filter
-          required: true
-          explode: true
-          schema:
-            type: array
-            items:
-              type: string
-              enum:
-                - available
-                - pending
-                - sold
-              default: available
-      responses:
-        '200':
-          description: successful operation
-          content:
-            application/xml:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Pet'
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Pet'
-        '400':
-          description: Invalid status value
-      security:
-        - petstore_auth:
-            - 'write:pets'
-            - 'read:pets'
-  /pet/findByTags:
-    get:
-      tags:
-        - pet
-      summary: Finds Pets by tags
-      description: >-
-        Muliple tags can be provided with comma separated strings. Use tag1,
-        tag2, tag3 for testing.
-      operationId: findPetsByTags
-      parameters:
-        - name: tags
-          in: query
-          description: Tags to filter by
-          required: true
-          explode: true
-          schema:
-            type: array
-            items:
-              type: string
-      responses:
-        '200':
-          $ref: "#/components/responses/PetResponse"
-        '400':
-          description: Invalid tag value
-      security:
-        - petstore_auth:
-            - 'write:pets'
-            - 'read:pets'
-      deprecated: true
-  '/pet/{petId}':
-    get:
-      tags:
-        - pet
-      summary: Find pet by ID
-      description: Returns a single pet
-      operationId: getPetById
-      parameters:
-        - name: petId
-          in: path
-          description: ID of pet to return
-          required: true
-          schema:
-            type: integer
-            format: int64
-      responses:
-        '200':
-          description: successful operation
-          content:
-            application/xml:
-              schema:
-                $ref: '#/components/schemas/Pet'
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Pet'
-        '400':
-          description: Invalid ID supplied
-        '404':
-          description: Pet not found
-      security:
-        - api_key: []
-    post:
-      tags:
-        - pet
-      summary: Updates a pet in the store with form data
-      description: ''
-      operationId: updatePetWithForm
-      parameters:
-        - name: petId
-          in: path
-          description: ID of pet that needs to be updated
-          required: true
-          schema:
-            type: integer
-            format: int64
-      responses:
-        '200':
-          description: OK
-        '405':
-          description: Invalid input
-      security:
-        - petstore_auth:
-            - 'write:pets'
-            - 'read:pets'
-      requestBody:
+        description: Document information to be used as new values
         content:
-          application/x-www-form-urlencoded:
+          application/json:
             schema:
-              type: object
-              properties:
-                name:
-                  description: Updated name of the pet
-                  type: string
-                status:
-                  description: Updated status of the pet
-                  type: string
+              "$ref": "#/components/schemas/Document"
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Document"
     delete:
       tags:
-        - pet
-      summary: Deletes a pet
-      description: ''
-      operationId: deletePet
+      - Documents
+      summary: Deletes a particular document
       parameters:
-        - name: api_key
-          in: header
-          required: false
-          schema:
-            type: string
-        - name: petId
-          in: path
-          description: Pet id to delete
-          required: true
-          schema:
-            type: integer
-            format: int64
+      - name: id
+        in: path
+        description: The identifier for the document
+        required: true
+        schema:
+          type: integer
+          description: The identifier for the document
+          format: int32
+          example: 1104
       responses:
         '200':
-          description: OK
-        '400':
-          description: Invalid ID supplied
-        '404':
-          description: Pet not found
-      security:
-        - petstore_auth:
-            - 'write:pets'
-            - 'read:pets'
-  '/pet/{petId}/uploadImage':
-    post:
-      tags:
-        - pet
-      summary: uploads an image
-      description: ''
-      operationId: uploadFile
-      parameters:
-        - name: petId
-          in: path
-          description: ID of pet to update
-          required: true
-          schema:
-            type: integer
-            format: int64
-      responses:
-        '200':
-          description: successful operation
+          description: Success
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiResponse'
-      security:
-        - petstore_auth:
-            - 'write:pets'
-            - 'read:pets'
+                type: boolean
+  "/api/v1/Documents/{id}/content":
+    get:
+      tags:
+      - Documents
+      summary: Download the document
+      parameters:
+      - name: id
+        in: path
+        description: Document Identifier
+        required: true
+        schema:
+          type: integer
+          description: Document Identifier
+          format: int32
+          example: 868011
+      responses:
+        '200':
+          description: Success
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+  "/api/v1/Documents/{id}/fields":
+    get:
+      tags:
+      - Documents
+      summary: Retrieve the Fields (coordinates) for a Document
+      parameters:
+      - name: id
+        in: path
+        description: The identifier for the document
+        required: true
+        schema:
+          type: integer
+          description: The identifier for the document
+          format: int32
+          example: 27
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  "$ref": "#/components/schemas/DocumentField"
+    post:
+      tags:
+      - Documents
+      summary: Adds one or more fields (coordinates) to a document
+      parameters:
+      - name: id
+        in: path
+        description: The identifier for the document
+        required: true
+        schema:
+          type: integer
+          description: The identifier for the document
+          format: int32
+          example: 21
+      requestBody:
+        description: The request object containing the fields to be added
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/CreateDocumentFieldsRequest"
+      responses:
+        '201':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  "$ref": "#/components/schemas/DocumentField"
+  "/api/v1/Documents/{id}/fields/{fieldId}":
+    get:
+      tags:
+      - Documents
+      summary: Retrieve a particular field of a document
+      parameters:
+      - name: id
+        in: path
+        description: The identifier for the document
+        required: true
+        schema:
+          type: integer
+          description: The identifier for the document
+          format: int32
+          example: 1993
+      - name: fieldId
+        in: path
+        description: The indentifier for the field of the document
+        required: true
+        schema:
+          type: integer
+          description: The indentifier for the field of the document
+          format: int32
+          example: 20202151
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/DocumentField"
+    put:
+      tags:
+      - Documents
+      summary: Update a field (coordinate) of a document
+      parameters:
+      - name: id
+        in: path
+        description: The document identifier
+        required: true
+        schema:
+          type: integer
+          description: The document identifier
+          format: int32
+      - name: fieldId
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        description: The new field values
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/ClosingPackageCoordinate"
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Document"
+    delete:
+      tags:
+      - Documents
+      summary: Delete a document's field
+      parameters:
+      - name: id
+        in: path
+        description: The identifier for the document
+        required: true
+        schema:
+          type: integer
+          description: The identifier for the document
+          format: int32
+          example: 12090234
+      - name: fieldId
+        in: path
+        description: The identifier for the field
+        required: true
+        schema:
+          type: integer
+          description: The identifier for the field
+          format: int32
+          example: 1675309
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: boolean
+  "/api/v1/Documents/{id}/signers":
+    get:
+      tags:
+      - Documents
+      summary: Get the signers associated to a document
+      parameters:
+      - name: id
+        in: path
+        description: Document Identifier
+        required: true
+        schema:
+          type: integer
+          description: Document Identifier
+          format: int32
+          example: 868011
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  "$ref": "#/components/schemas/Signer"
+  "/api/v1/Notifications/{id}":
+    get:
+      tags:
+      - Notifications
+      summary: Retrieve an individial notification
+      parameters:
+      - name: id
+        in: path
+        description: Notification identifier
+        required: true
+        schema:
+          type: integer
+          description: Notification identifier
+          format: int32
+          example: 20201231
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Notification"
+    put:
+      tags:
+      - Notifications
+      summary: Update an existing notification.
+      description: The notification to be modified is identified by the request param's
+        ID property.
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        description: A request object with all information to be persisted
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/UpdateNotificationRequest"
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: boolean
+    delete:
+      tags:
+      - Notifications
+      summary: Delete a notification
+      parameters:
+      - name: id
+        in: path
+        description: Notification identifier
+        required: true
+        schema:
+          type: integer
+          description: Notification identifier
+          format: int32
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: boolean
+  "/api/v1/Notifications":
+    post:
+      tags:
+      - Notifications
+      summary: Create a new Notification
+      requestBody:
+        description: The notification information
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/CreateNotificationRequest"
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: boolean
+    get:
+      tags:
+      - Notifications
+      summary: Retrieve Notifications
+      parameters:
+      - name: officeId
+        in: query
+        description: The office identifier for the notifications
+        required: true
+        schema:
+          type: integer
+          description: The office identifier for the notifications
+          format: int32
+      - name: notificationType
+        in: query
+        description: The notification type to retrieve
+        schema:
+          type: integer
+          description: The notification type to retrieve
+          format: int32
+      - name: target
+        in: query
+        description: The target of the notifications
+        schema:
+          type: string
+          description: The target of the notifications
+          nullable: true
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  "$ref": "#/components/schemas/Notification"
+  "/api/v1/Packages/{id}":
+    get:
+      tags:
+      - Packages
+      summary: Gets the package by id
+      operationId: GetPackage
+      parameters:
+      - name: id
+        in: path
+        description: Package Id
+        required: true
+        schema:
+          type: integer
+          description: Package Id
+          format: int32
+          example: 12001
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Package"
+    put:
+      tags:
+      - Packages
+      summary: Updates the package
+      parameters:
+      - name: id
+        in: path
+        description: Package Id
+        required: true
+        schema:
+          type: integer
+          description: Package Id
+          format: int32
+      requestBody:
+        description: Package model
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/Package"
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Package"
+    delete:
+      tags:
+      - Packages
+      summary: Delete a package
+      parameters:
+      - name: id
+        in: path
+        description: ''
+        required: true
+        schema:
+          type: integer
+          description: ''
+          format: int32
+      responses:
+        '204':
+          description: Success
+  "/api/v1/Packages":
+    post:
+      tags:
+      - Packages
+      summary: Creates a package
+      requestBody:
+        description: ''
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/Package"
+      responses:
+        '201':
+          description: Success
+  "/api/v1/Packages/{id}/documents":
+    get:
+      tags:
+      - Packages
+      summary: Get the package documents
+      operationId: GetPackageDocuments
+      parameters:
+      - name: id
+        in: path
+        description: ''
+        required: true
+        schema:
+          type: integer
+          description: ''
+          format: int32
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  "$ref": "#/components/schemas/Document"
+    post:
+      tags:
+      - Packages
+      summary: Add a document to the package
+      parameters:
+      - name: id
+        in: path
+        description: ''
+        required: true
+        schema:
+          type: integer
+          description: ''
+          format: int32
+      - name: model
+        in: query
+        description: ''
+        schema:
+          "$ref": "#/components/schemas/CreateDocument"
       requestBody:
         content:
           multipart/form-data:
             schema:
+              required:
+              - file
               type: object
               properties:
-                additionalMetadata:
-                  description: Additional data to pass to server
-                  type: string
                 file:
-                  description: file to upload
-                  type: string
+                  type: file
+                  description: Upload File
                   format: binary
-  /store/inventory:
+      responses:
+        '201':
+          description: Success
+  "/api/v1/Packages/{id}/signers":
     get:
       tags:
-        - store
-      summary: Returns pet inventories by status
-      description: Returns a map of status codes to quantities
-      operationId: getInventory
+      - Packages
+      summary: Get the package signers
+      operationId: GetPackageSigners
+      parameters:
+      - name: id
+        in: path
+        description: ''
+        required: true
+        schema:
+          type: integer
+          description: ''
+          format: int32
       responses:
         '200':
-          description: successful operation
+          description: Success
           content:
             application/json:
               schema:
-                type: object
-                additionalProperties:
-                  type: integer
-                  format: int32
-      security:
-        - api_key: []
-  /store/order:
+                type: array
+                items:
+                  "$ref": "#/components/schemas/Signer"
     post:
       tags:
-        - store
-      summary: Place an order for a pet
-      description: ''
-      operationId: placeOrder
-      responses:
-        '200':
-          description: successful operation
-          content:
-            application/xml:
-              schema:
-                $ref: '#/components/schemas/Order'
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Order'
-        '400':
-          description: Invalid Order
+      - Packages
+      summary: Adds a signer to the package
+      parameters:
+      - name: id
+        in: path
+        description: ''
+        required: true
+        schema:
+          type: integer
+          description: ''
+          format: int32
       requestBody:
+        description: ''
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Order'
-        description: order placed for purchasing the pet
-        required: true
-  '/store/order/{orderId}':
-    get:
-      tags:
-        - store
-      summary: Find purchase order by ID
-      description: >-
-        For valid response try integer IDs with value >= 1 and <= 10. Other
-        values will generated exceptions
-      operationId: getOrderById
-      parameters:
-        - name: orderId
-          in: path
-          description: ID of pet that needs to be fetched
-          required: true
-          schema:
-            type: integer
-            format: int64
-            minimum: 1
-            maximum: 10
+              "$ref": "#/components/schemas/SignerDto"
       responses:
-        '200':
-          description: successful operation
-          content:
-            application/xml:
-              schema:
-                $ref: '#/components/schemas/Order'
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Order'
-        '400':
-          description: Invalid ID supplied
-        '404':
-          description: Order not found
-    delete:
-      tags:
-        - store
-      summary: Delete purchase order by ID
-      description: >-
-        For valid response try integer IDs with positive integer value. Negative
-        or non-integer values will generate API errors
-      operationId: deleteOrder
-      parameters:
-        - name: orderId
-          in: path
-          description: ID of the order that needs to be deleted
-          required: true
-          schema:
-            type: integer
-            format: int64
-            minimum: 1
-      responses:
-        '200':
-          description: OK
-        '400':
-          description: Invalid ID supplied
-        '404':
-          description: Order not found
-  /user:
-    post:
-      tags:
-        - user
-      summary: Create user
-      description: This can only be done by the logged in user.
-      operationId: createUser
-      responses:
-        default:
-          description: successful operation
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/User'
-        description: Created user object
-        required: true
-  /user/createWithArray:
-    post:
-      tags:
-        - user
-      summary: Creates list of users with given input array
-      description: ''
-      operationId: createUsersWithArrayInput
-      responses:
-        default:
-          description: successful operation
-      requestBody:
-        $ref: '#/components/requestBodies/UserArray'
-  /user/createWithList:
-    post:
-      tags:
-        - user
-      summary: Creates list of users with given input array
-      description: ''
-      operationId: createUsersWithListInput
-      responses:
-        default:
-          description: successful operation
-      requestBody:
-        $ref: '#/components/requestBodies/UserArray'
-  /user/login:
-    get:
-      tags:
-        - user
-      summary: Logs user into the system
-      description: ''
-      operationId: loginUser
-      parameters:
-        - name: username
-          in: query
-          description: The user name for login
-          required: true
-          schema:
-            type: string
-        - name: password
-          in: query
-          description: The password for login in clear text
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: successful operation
-          headers:
-            X-Rate-Limit:
-              description: calls per hour allowed by the user
-              schema:
-                type: integer
-                format: int32
-            X-Expires-After:
-              description: date in UTC when token expires
-              schema:
-                type: string
-                format: date-time
-          content:
-            application/xml:
-              schema:
-                type: string
-            application/json:
-              schema:
-                type: string
-        '400':
-          description: Invalid username/password supplied
-  /user/logout:
-    get:
-      tags:
-        - user
-      summary: Logs out current logged in user session
-      description: ''
-      operationId: logoutUser
-      responses:
-        default:
-          description: successful operation
-  '/user/{username}':
-    get:
-      tags:
-        - user
-      summary: Get user by user name
-      description: ''
-      operationId: getUserByName
-      parameters:
-        - name: username
-          in: path
-          description: 'The name that needs to be fetched. Use user1 for testing. '
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: successful operation
-          content:
-            application/xml:
-              schema:
-                $ref: '#/components/schemas/User'
-            application/json:
-              schema:
-                $ref: '#/components/schemas/User'
-        '400':
-          description: Invalid username supplied
-        '404':
-          description: User not found
+        '201':
+          description: Success
+  "/api/v1/Packages/{id}/signers/{signerId}":
     put:
       tags:
-        - user
-      summary: Updated user
-      description: This can only be done by the logged in user.
-      operationId: updateUser
+      - Packages
+      summary: Updates a signer to the package
       parameters:
-        - name: username
-          in: path
-          description: name that need to be updated
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: OK
-        '400':
-          description: Invalid user supplied
-        '404':
-          description: User not found
+      - name: id
+        in: path
+        description: Closing Package ID
+        required: true
+        schema:
+          type: integer
+          description: Closing Package ID
+          format: int32
+      - name: signerId
+        in: path
+        description: Signer ID
+        required: true
+        schema:
+          type: integer
+          description: Signer ID
+          format: int32
       requestBody:
+        description: Signer Dto
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/User'
-        description: Updated user object
-        required: true
-    delete:
-      tags:
-        - user
-      summary: Delete user
-      description: This can only be done by the logged in user.
-      operationId: deleteUser
-      parameters:
-        - name: username
-          in: path
-          description: The name that needs to be deleted
-          required: true
-          schema:
-            type: string
+              "$ref": "#/components/schemas/SignerDto"
       responses:
         '200':
-          description: OK
-        '400':
-          description: Invalid username supplied
-        '404':
-          description: User not found
-externalDocs:
-  description: Find out more about Swagger
-  url: 'http://swagger.io'
+          description: Success
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Signer"
+    get:
+      tags:
+      - Packages
+      summary: Gets a signer to the package
+      parameters:
+      - name: id
+        in: path
+        description: Closing Package ID
+        required: true
+        schema:
+          type: integer
+          description: Closing Package ID
+          format: int32
+      - name: signerId
+        in: path
+        description: Signer ID
+        required: true
+        schema:
+          type: integer
+          description: Signer ID
+          format: int32
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Signer"
+    delete:
+      tags:
+      - Packages
+      summary: Deletes the package signer.
+      parameters:
+      - name: id
+        in: path
+        description: The identifier.
+        required: true
+        schema:
+          type: integer
+          description: The identifier.
+          format: int32
+      - name: signerId
+        in: path
+        description: The signer identifier.
+        required: true
+        schema:
+          type: integer
+          description: The signer identifier.
+          format: int32
+      responses:
+        '204':
+          description: Success
 components:
-  responses:
-    PetResponse:
-      description: successful operation
-      content:
-        application/xml:
-          schema:
-            type: array
-            items:
-              $ref: '#/components/schemas/Pet'
-        application/json:
-          schema:
-            type: array
-            items:
-              $ref: '#/components/schemas/Pet'
-  requestBodies:
-    UserArray:
-      content:
-        application/json:
-          schema:
-            type: array
-            items:
-              $ref: '#/components/schemas/User'
-      description: List of user object
-      required: true
-    Pet:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Pet'
-        application/xml:
-          schema:
-            $ref: '#/components/schemas/Pet'
-      description: Pet object that needs to be added to the store
-      required: true
-  securitySchemes:
-    petstore_auth:
-      type: oauth2
-      flows:
-        implicit:
-          authorizationUrl: 'http://petstore.swagger.io/oauth/dialog'
-          scopes:
-            'write:pets': modify pets in your account
-            'read:pets': read your pets
-    api_key:
-      type: apiKey
-      name: api_key
-      in: header
   schemas:
-    Order:
+    Credentials:
       type: object
       properties:
-        id:
+        Username:
+          type: string
+          description: Username / Email of the agent
+          nullable: true
+          example: test@domain.com
+        Password:
+          type: string
+          description: Password of the agent
+          nullable: true
+          example: "********"
+      additionalProperties: false
+      description: User credentials
+    AgentType:
+      type: object
+      properties:
+        AgentTypeID:
           type: integer
-          format: int64
-        petId:
+          description: Gets or sets the agent type identifier.
+          format: int32
+          example: 1
+        Description:
+          type: string
+          description: Gets or sets the description.
+          nullable: true
+          example: Notary
+      additionalProperties: false
+    UserLogin:
+      type: object
+      properties:
+        AgentID:
           type: integer
-          format: int64
-        quantity:
+          description: Agent ID
+          format: int32
+          example: 1221
+        AgentType:
+          "$ref": "#/components/schemas/AgentType"
+        Username:
+          type: string
+          description: Gets or sets the username.
+          nullable: true
+          example: test-user
+        Email:
+          type: string
+          description: Email
+          nullable: true
+          example: test@domain.com
+        LoginTicket:
+          type: string
+          description: Login Ticket
+          nullable: true
+          example: 3dfbb7b2-f9ec-482b-87eb-097d0eaefd32
+        TokenExpiration:
+          type: string
+          description: Token Expiration
+          format: date-time
+          example: '2020-12-15T17:57:41.0000000'
+        AuthToken:
+          type: string
+          description: Auth Token
+          nullable: true
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJtY3VzZXIyQGdldG5hZGEuY29tIiwidW5pcXVlX25hbWUiOiJtY3VzZXIyQGdldG5hZGEuY29tIiwiaXNzIjoiU1NTRXh0QXBpIiwicm9sZSI6Ik5vdGFyeSIsInRpY2tldCI6IjlmNTg5YWQwLTUyMTUtNGJhNS1hYmIzLWEzYWVlZTM1ODE4NiIsImp0aSI6IjcxMDI1YjU1LTI0NWMtNGQzZi1iMTYyLTY1MTI3MjY2ODFmYyIsImlhdCI6MTYwODA2NTg2MSwibmJmIjoxNjA4MDY1ODYxLCJleHAiOjE2MDgwNzMwNjF9.08hZ0LjOvfwtd8z06ltSOyXYHYbKRgbv-3EHkfjllII
+      additionalProperties: false
+      description: User
+    Document:
+      type: object
+      properties:
+        LastModified:
+          type: string
+          nullable: true
+        ID:
           type: integer
           format: int32
-        shipDate:
+        ClosingPackageID:
+          type: integer
+          format: int32
+        Name:
+          type: string
+          nullable: true
+        IsSmartDocument:
+          type: boolean
+        IsPDF:
+          type: boolean
+        IsInk:
+          type: boolean
+        FileName:
+          type: string
+          nullable: true
+        TotalPages:
+          type: integer
+          format: int32
+        TotalCoordinates:
+          type: integer
+          format: int32
+        Status:
+          type: string
+          nullable: true
+        DocumentOrder:
+          type: integer
+          format: int32
+        IsSignAhead:
+          type: boolean
+      additionalProperties: false
+    DocumentField:
+      type: object
+      properties:
+        ClosingPackageCoordinateID:
+          type: integer
+          format: int32
+        Captured:
+          type: boolean
+        CaptureDate:
           type: string
           format: date-time
-        status:
+        CaptureValue:
           type: string
-          description: Order Status
-          enum:
-            - placed
-            - approved
-            - delivered
-        complete:
+          nullable: true
+        IsNotary:
           type: boolean
-          default: false
-      xml:
-        name: Order
-    User:
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int64
-        username:
-          type: string
-        firstName:
-          type: string
-        lastName:
-          type: string
-        email:
-          type: string
-        password:
-          type: string
-        phone:
-          type: string
-        userStatus:
+        IsSigner:
+          type: boolean
+        IsSignature:
+          type: boolean
+        IsRequired:
+          type: boolean
+        IsPostFill:
+          type: boolean
+        PageNumber:
           type: integer
           format: int32
-          description: User Status
-      xml:
-        name: User
-    Category:
+        Field:
+          type: string
+          nullable: true
+        SignerType:
+          type: string
+          nullable: true
+        CoordinateType:
+          type: string
+          nullable: true
+        Prompt:
+          type: string
+          nullable: true
+        Service:
+          type: string
+          nullable: true
+      additionalProperties: false
+    ModifyStatuses:
+      enum:
+      - 0
+      - 1
+      - 2
+      - 3
+      type: integer
+      format: int32
+    XPMCoordinate:
       type: object
       properties:
-        id:
-          type: integer
-          format: int64
-        name:
+        ID:
           type: string
-      xml:
-        name: Category
-    Tag:
+          nullable: true
+        LastModified:
+          type: string
+          nullable: true
+        Field:
+          type: string
+          nullable: true
+        SignerType:
+          type: string
+          nullable: true
+        CoordinateType:
+          type: string
+          nullable: true
+        Prompt:
+          type: string
+          nullable: true
+        Service:
+          type: string
+          nullable: true
+        CaptureValue:
+          type: string
+          nullable: true
+      additionalProperties: false
+    ClosingPackageCoordinate:
       type: object
       properties:
-        id:
-          type: integer
-          format: int64
-        name:
-          type: string
-      xml:
-        name: Tag
-    Pet:
-      type: object
-      required:
-        - name
-        - photoUrls
-      properties:
-        id:
-          type: integer
-          format: int64
-        category:
-          $ref: '#/components/schemas/Category'
-        name:
-          type: string
-          example: doggie
-        photoUrls:
-          type: array
-          xml:
-            name: photoUrl
-            wrapped: true
-          items:
-            type: string
-        tags:
-          type: array
-          xml:
-            name: tag
-            wrapped: true
-          items:
-            $ref: '#/components/schemas/Tag'
-        status:
-          type: string
-          description: pet status in the store
-          enum:
-            - available
-            - pending
-            - sold
-      xml:
-        name: Pet
-    ApiResponse:
-      type: object
-      properties:
-        code:
+        ClosingPackageCoordinateID:
           type: integer
           format: int32
-        type:
+        Captured:
+          type: boolean
+        CaptureDate:
           type: string
-        message:
+          format: date-time
+        CaptureValue:
           type: string
+          nullable: true
+        IsNotary:
+          type: boolean
+        IsSigner:
+          type: boolean
+        IsSignature:
+          type: boolean
+        IsRequired:
+          type: boolean
+        IsPostFill:
+          type: boolean
+        PageNumber:
+          type: integer
+          format: int32
+        Field:
+          type: string
+          nullable: true
+        SignerType:
+          type: string
+          nullable: true
+        CoordinateType:
+          type: string
+          nullable: true
+        Prompt:
+          type: string
+          nullable: true
+        Service:
+          type: string
+          nullable: true
+        ID:
+          type: integer
+          format: int32
+        LastModified:
+          type: string
+          nullable: true
+        ClosingPackageID:
+          type: integer
+          format: int32
+        DocumentID:
+          type: integer
+          format: int32
+        ClosingSignerID:
+          type: integer
+          format: int32
+        Pending:
+          "$ref": "#/components/schemas/ModifyStatuses"
+        DocumentName:
+          type: string
+          nullable: true
+        Height:
+          type: number
+          format: double
+        Width:
+          type: number
+          format: double
+        X:
+          type: number
+          format: double
+        Y:
+          type: number
+          format: double
+        Z:
+          type: number
+          format: double
+        Coordinate:
+          "$ref": "#/components/schemas/XPMCoordinate"
+        AdditionalSigners:
+          type: array
+          items: {}
+          nullable: true
+      additionalProperties: false
+    CreateDocumentFieldsRequest:
+      type: object
+      properties:
+        Fields:
+          type: array
+          items:
+            "$ref": "#/components/schemas/ClosingPackageCoordinate"
+          nullable: true
+      additionalProperties: false
+    SignatureStatus:
+      enum:
+      - 0
+      - 1
+      - 2
+      type: integer
+      format: int32
+    SignerNotificationType:
+      enum:
+      - 0
+      - 1
+      type: integer
+      format: int32
+    SignerValidationType:
+      enum:
+      - 0
+      - 1
+      - 2
+      - 3
+      type: integer
+      format: int32
+    Signer:
+      type: object
+      properties:
+        ID:
+          type: integer
+          format: int32
+        Sequence:
+          type: integer
+          format: int32
+        Status:
+          "$ref": "#/components/schemas/SignatureStatus"
+        SignerType:
+          type: string
+          nullable: true
+        Prefix:
+          type: string
+          nullable: true
+        FirstName:
+          type: string
+          nullable: true
+        MiddleName:
+          type: string
+          nullable: true
+        LastName:
+          type: string
+          nullable: true
+        Suffix:
+          type: string
+          nullable: true
+        Street:
+          type: string
+          nullable: true
+        Street2:
+          type: string
+          nullable: true
+        City:
+          type: string
+          nullable: true
+        State:
+          type: string
+          nullable: true
+        ZipCode:
+          type: string
+          nullable: true
+        County:
+          type: string
+          nullable: true
+        Country:
+          type: string
+          nullable: true
+        Email:
+          type: string
+          nullable: true
+        HomePhone:
+          type: string
+          nullable: true
+        WorkPhone:
+          type: string
+          nullable: true
+        CellPhone:
+          type: string
+          nullable: true
+        PIN:
+          type: string
+          nullable: true
+        RequiresNotary:
+          type: boolean
+        NotificationType:
+          "$ref": "#/components/schemas/SignerNotificationType"
+        Activated:
+          type: boolean
+        Consented:
+          type: boolean
+        ConsentDate:
+          type: string
+          format: date-time
+        LoginTicket:
+          type: string
+          format: uuid
+        FirstLogin:
+          type: boolean
+        ClosingPackageStreet:
+          type: string
+          nullable: true
+        SignerNextCoord:
+          type: integer
+          format: int32
+        NotaryNextCoord:
+          type: integer
+          format: int32
+        SignAhead:
+          type: boolean
+        Witness:
+          type: boolean
+        AdditionalSignatureVerbiage:
+          type: string
+          nullable: true
+        Company:
+          type: string
+          nullable: true
+        ValidationType:
+          "$ref": "#/components/schemas/SignerValidationType"
+      additionalProperties: false
+    Notification:
+      type: object
+      properties:
+        ID:
+          type: integer
+          format: int32
+        OfficeID:
+          type: integer
+          format: int32
+        NotificationType:
+          type: integer
+          format: int32
+        Target:
+          type: string
+          nullable: true
+      additionalProperties: false
+    UpdateNotificationRequest:
+      type: object
+      properties:
+        ID:
+          type: integer
+          format: int32
+        OfficeID:
+          type: integer
+          format: int32
+        NotificationType:
+          type: integer
+          format: int32
+        Target:
+          type: string
+          nullable: true
+      additionalProperties: false
+    CreateNotificationRequest:
+      type: object
+      properties:
+        OfficeID:
+          type: integer
+          format: int32
+        NotificationType:
+          type: integer
+          format: int32
+        Target:
+          type: string
+          nullable: true
+      additionalProperties: false
+    ClosingPackageOffice:
+      type: object
+      properties:
+        Pending:
+          type: integer
+          description: Gets or sets the pending.
+          format: int32
+        ClosingPackageID:
+          type: integer
+          description: Gets or sets the closing package identifier.
+          format: int32
+        OfficeID:
+          type: integer
+          description: Gets or sets the office identifier.
+          format: int32
+        LastModified:
+          description: Gets or sets the last modified.
+          nullable: true
+      additionalProperties: false
+      description: Closing Package Office
+    Package:
+      type: object
+      properties:
+        Id:
+          type: integer
+          description: Gets or sets the identifier.
+          format: int32
+          example: 12001
+        MLSNumber:
+          type: string
+          description: Gets or sets the MLS number.
+          nullable: true
+          example: ''
+        EscrowNumber:
+          type: string
+          description: Gets or sets the escrow number.
+          nullable: true
+        TitleNumber:
+          type: string
+          description: Gets or sets the title number.
+          nullable: true
+        Street:
+          type: string
+          description: Gets or sets the street.
+          nullable: true
+        City:
+          type: string
+          description: Gets or sets the city.
+          nullable: true
+        State:
+          type: string
+          description: Gets or sets the state.
+          nullable: true
+        Zip:
+          type: string
+          description: Gets or sets the zip.
+          nullable: true
+        Status:
+          type: integer
+          description: Gets or sets the status.
+          format: int32
+        Offices:
+          type: array
+          items:
+            "$ref": "#/components/schemas/ClosingPackageOffice"
+          description: Gets or sets the offices.
+          nullable: true
+        SignAhead:
+          type: boolean
+          description: Gets or sets a value indicating whether [sign ahead].
+        RequireViewAllPages:
+          type: boolean
+          description: Gets or sets a value indicating whether [require view all pages].
+        AllowIDFailureOverride:
+          type: boolean
+          description: Gets or sets a value indicating whether [allow identifier failure
+            override].
+        TitleNumberNoPrefix:
+          type: string
+          description: Gets or sets the title number no prefix.
+          nullable: true
+        ClosingRoomInfo:
+          description: Gets or sets the closing room information.
+          nullable: true
+        PackageExtra:
+          nullable: true
+      additionalProperties: false
+      description: Closing package
+    CreateDocument:
+      type: object
+      properties:
+        SplitDoc:
+          type: boolean
+        IsSignAhead:
+          type: boolean
+      additionalProperties: false
+    SignerDto:
+      type: object
+      properties:
+        ID:
+          type: integer
+          format: int32
+        Sequence:
+          type: integer
+          format: int32
+        Status:
+          "$ref": "#/components/schemas/SignatureStatus"
+        SignerType:
+          type: string
+          nullable: true
+        Prefix:
+          type: string
+          nullable: true
+        FirstName:
+          type: string
+          nullable: true
+        MiddleName:
+          type: string
+          nullable: true
+        LastName:
+          type: string
+          nullable: true
+        Suffix:
+          type: string
+          nullable: true
+        Street:
+          type: string
+          nullable: true
+        Street2:
+          type: string
+          nullable: true
+        City:
+          type: string
+          nullable: true
+        State:
+          type: string
+          nullable: true
+        ZipCode:
+          type: string
+          nullable: true
+        County:
+          type: string
+          nullable: true
+        Country:
+          type: string
+          nullable: true
+        Email:
+          type: string
+          nullable: true
+        HomePhone:
+          type: string
+          nullable: true
+        WorkPhone:
+          type: string
+          nullable: true
+        CellPhone:
+          type: string
+          nullable: true
+        PIN:
+          type: string
+          nullable: true
+        RequiresNotary:
+          type: boolean
+        NotificationType:
+          "$ref": "#/components/schemas/SignerNotificationType"
+        SignerNextCoord:
+          type: integer
+          format: int32
+        NotaryNextCoord:
+          type: integer
+          format: int32
+        SignAhead:
+          type: boolean
+        Witness:
+          type: boolean
+        AdditionalSignatureVerbiage:
+          type: string
+          nullable: true
+        Company:
+          type: string
+          nullable: true
+        ValidationType:
+          "$ref": "#/components/schemas/SignerValidationType"
+        Activated:
+          type: boolean
+        Consented:
+          type: boolean
+        ConsentDate:
+          type: string
+          format: date-time
+      additionalProperties: false
+  securitySchemes:
+    Bearer:
+      type: apiKey
+      description: 'Authorization header using the Bearer scheme. Example: "Authorization:
+        Bearer {token}"'
+      name: Authorization
+      in: header
